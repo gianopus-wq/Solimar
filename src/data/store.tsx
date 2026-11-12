@@ -90,6 +90,9 @@ const toEngagement = (r: Row): Engagement => ({
   confirmedAt: r.confirmed_at ?? undefined,
   msaSignedAt: r.msa_signed_at ?? undefined,
   sowSignedAt: r.sow_signed_at ?? undefined,
+  hourlyRate: Number(r.hourly_rate ?? 0),
+  hoursPerWeek: Number(r.hours_per_week ?? 0),
+  termWeeks: Number(r.term_weeks ?? 0),
 });
 
 const toLead = (r: Row): Lead => ({
@@ -150,6 +153,9 @@ type Actions = {
     contactEmail: string;
     tools: string[];
     standup: string;
+    hourlyRate: number;
+    hoursPerWeek: number;
+    termWeeks: number;
   }) => Promise<void>;
   setStep: (engagement: Engagement, stepId: string, done: boolean, file?: { name: string; path: string }) => Promise<void>;
   uploadAgreement: (engagement: Engagement, stepId: string, asset: DocumentPickerAsset) => Promise<void>;
@@ -337,6 +343,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             contact_email: input.contactEmail,
             tools: input.tools,
             standup: input.standup,
+            hourly_rate: input.hourlyRate,
+            hours_per_week: input.hoursPerWeek,
+            term_weeks: input.termWeeks,
             steps: buildSteps(input.tools, input.standup),
           })
           .select()

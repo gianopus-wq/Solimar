@@ -54,6 +54,10 @@ export type Engagement = {
   confirmedAt?: string;
   msaSignedAt?: string;
   sowSignedAt?: string;
+  /** Commercial terms. Contract value = rate × hours per week × weeks. */
+  hourlyRate: number;
+  hoursPerWeek: number;
+  termWeeks: number;
 };
 
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'closed';

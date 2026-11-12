@@ -52,6 +52,9 @@ function TalentCard({ talent: p }: { talent: Talent }) {
   const [contactEmail, setContactEmail] = useState('');
   const [tools, setTools] = useState('');
   const [standup, setStandup] = useState('');
+  const [rate, setRate] = useState('');
+  const [hours, setHours] = useState('');
+  const [weeks, setWeeks] = useState('');
   const [copied, setCopied] = useState('');
 
   const links = store.engagements.filter((e) => e.talentId === p.id);
@@ -64,7 +67,13 @@ function TalentCard({ talent: p }: { talent: Talent }) {
       contactEmail: contactEmail.trim(),
       tools: tools.split(',').map((x) => x.trim()).filter(Boolean),
       standup: standup.trim(),
+      hourlyRate: Number(rate) || 0,
+      hoursPerWeek: Number(hours) || 0,
+      termWeeks: Number(weeks) || 0,
     });
+    setRate('');
+    setHours('');
+    setWeeks('');
     setCompany('');
     setContactEmail('');
     setTools('');
@@ -143,6 +152,9 @@ function TalentCard({ talent: p }: { talent: Talent }) {
             <Field label="Client HR / IT email" value={contactEmail} onChangeText={setContactEmail} keyboardType="email-address" />
             <Field label="Tools they use (comma separated)" value={tools} onChangeText={setTools} placeholder="Slack, Notion" />
             <Field label="Daily standup time" value={standup} onChangeText={setStandup} placeholder="9:30 AM EST" />
+            <Field label="Hourly rate (USD)" value={rate} onChangeText={setRate} placeholder="28" keyboardType="numeric" />
+            <Field label="Hours per week" value={hours} onChangeText={setHours} placeholder="40" keyboardType="numeric" />
+            <Field label="Term (weeks)" value={weeks} onChangeText={setWeeks} placeholder="26" keyboardType="numeric" />
           </View>
           <DButton label="Create link" icon="link" onPress={createLink} disabled={!company.trim()} style={styles.gap} />
         </View>
