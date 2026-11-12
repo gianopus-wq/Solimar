@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Solimar",
-    "slug": "solimar",
+    "name": "Naboria",
+    "slug": "naboria",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -27,6 +27,6 @@
       "expo-router",
       "expo-font"
     ],
-    "scheme": "solimar"
+    "scheme": "naboria"
   }
 }

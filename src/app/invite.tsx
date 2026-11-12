@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Avatar, Badge, Chip, d, DButton, pageBackground, Panel, t } from '../components/dash';
+import { SunMark } from '../components/SunMark';
 import { Video } from '../components/Video';
 import { Invite as InviteData } from '../data/types';
 import { EventResult, fireEvent, listWords } from '../lib/events';
@@ -69,7 +70,7 @@ export default function Invite() {
         <Panel style={styles.notFound}>
           <Ionicons name="link-outline" size={28} color={d.muted} />
           <Text style={styles.name}>This link is not active</Text>
-          <Text style={t.text}>It may have expired or been copied incorrectly. Ask your Solimar contact for a new one.</Text>
+          <Text style={t.text}>It may have expired or been copied incorrectly. Ask your Naboria contact for a new one.</Text>
         </Panel>
       </View>
     );
@@ -104,16 +105,16 @@ export default function Invite() {
   return (
     <ScrollView style={[styles.page, pageBackground]} contentContainerStyle={styles.content}>
       <Head>
-        <title>{`${talent.name} for ${engagement.company} | Solimar`}</title>
+        <title>{`${talent.name} for ${engagement.company} | Naboria`}</title>
         <meta name="robots" content="noindex" />
       </Head>
 
       <View style={styles.top}>
         <View style={styles.brand}>
           <View style={styles.brandMark}>
-            <Ionicons name="sunny" size={16} color="#FFFFFF" />
+            <SunMark size={22} color="#FFFFFF" detail={d.blue} />
           </View>
-          <Text style={styles.brandName}>Solimar</Text>
+          <Text style={styles.brandName}>Naboria</Text>
         </View>
         <Badge label={`Private link for ${engagement.company}`} tone="gray" icon="lock-closed" />
       </View>
@@ -128,7 +129,7 @@ export default function Invite() {
             <Text style={t.text}>{talent.role}</Text>
             <Text style={t.small}>{talent.location}</Text>
           </View>
-          <Badge label="Pre-vetted by Solimar" tone="good" icon="shield-checkmark" />
+          <Badge label="Pre-vetted by Naboria" tone="good" icon="shield-checkmark" />
         </View>
 
         <Text style={styles.headline}>{talent.headline}</Text>
@@ -227,7 +228,7 @@ export default function Invite() {
               </Text>
               {result === 'failed' && (
                 <Text style={styles.warn}>
-                  Your request is saved, but our automation did not respond. Your Solimar contact will follow up by hand.
+                  Your request is saved, but our automation did not respond. Your Naboria contact will follow up by hand.
                 </Text>
               )}
             </View>

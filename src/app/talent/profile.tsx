@@ -124,7 +124,7 @@ export default function Profile() {
           </Panel>
 
           <Panel title="Skills">
-            <Text style={[t.small, styles.hint]}>Solimar verifies your skills when your profile is approved.</Text>
+            <Text style={[t.small, styles.hint]}>Naboria verifies your skills when your profile is approved.</Text>
             <TagEditor
               items={me.skills.map((k) => k.name)}
               verified={me.skills.filter((k) => k.verified).map((k) => k.name)}

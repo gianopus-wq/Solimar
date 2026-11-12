@@ -1,4 +1,4 @@
-# Solimar
+# Naboria
 
 B2B talent pipeline connecting mainland U.S. companies with English-speaking professionals in Puerto Rico.
 
@@ -22,11 +22,11 @@ Import the repo in Vercel. `vercel.json` already sets the build command (`npx ex
 | Route | Who | What |
 | --- | --- | --- |
 | `/` | Prospects | Landing page with the "Schedule a call" form |
-| `/login` | Professionals and the Solimar team | Sign in, or create a professional account |
+| `/login` | Professionals and the Naboria team | Sign in, or create a professional account |
 | `/invite?c=<token>` | Client (no sign-in) | Talent card and the "Add to Team / Request Onboarding" button |
 | `/talent` | Professional | Clients by status, setup steps, and the "I Have Joined" confirmation |
 | `/talent/profile` | Professional | Video intro, personal info, skills, education, experience |
-| `/admin` | Solimar team | Overview, plus `/admin/talent`, `/admin/leads`, `/admin/invoices`, `/admin/contracts` |
+| `/admin` | Naboria team | Overview, plus `/admin/talent`, `/admin/leads`, `/admin/invoices`, `/admin/contracts` |
 
 ## Backend (Supabase)
 
