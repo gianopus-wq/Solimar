@@ -59,7 +59,9 @@ If they already have an account, also run `update public.profiles set role = 'ad
 - `onboarding_requested`: a client clicked "Add to Team". Payload includes company, client contact email, tools, standup time, the default contract template file name, and the professional's name, email, and role.
 - `talent_confirmed_setup`: a professional confirmed they joined the client's systems.
 
-Generating the agreement, notifying the client's HR/IT team, starting the checklist, and updating the tracking sheet are scenarios you build in Make.com from those events. Without `MAKE_WEBHOOK_URL`, events are only written to the function logs.
+The Make.com scenario **Solimar: placement tracking** listens on the custom webhook **Solimar app events** and keeps the data store **Solimar placement tracking** up to date: one record per placement, set to "Pending IT setup" when the client requests onboarding and "Active" when the professional confirms. Set `MAKE_WEBHOOK_URL` in the Vercel project to that webhook's address (Make → Webhooks). Without it, events are only written to the function logs.
+
+Not built yet, because each needs an account connected in Make: generating the agreement, emailing the client's HR/IT team, and starting the checklist in the client's tools. Add them as extra modules on the "Client requested onboarding" route.
 
 ## Lead form
 
