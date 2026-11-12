@@ -2,6 +2,7 @@ import type { Session } from '@supabase/supabase-js';
 import type { DocumentPickerAsset } from 'expo-document-picker';
 import { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
+import { fireEvent } from '../lib/events';
 import { BUCKET, safeFileName, supabase } from '../lib/supabase';
 import { buildSteps } from './steps';
 import {
@@ -44,6 +45,7 @@ const toTalent = (r: Row): Talent => ({
   experience: r.experience ?? [],
   videoName: r.video_name,
   videoPath: r.video_path,
+  employmentSignedAt: r.employment_signed_at ?? undefined,
   status: r.status,
 });
 
@@ -86,6 +88,8 @@ const toEngagement = (r: Row): Engagement => ({
   createdAt: r.created_at,
   requestedAt: r.requested_at ?? undefined,
   confirmedAt: r.confirmed_at ?? undefined,
+  msaSignedAt: r.msa_signed_at ?? undefined,
+  sowSignedAt: r.sow_signed_at ?? undefined,
 });
 
 const toLead = (r: Row): Lead => ({
@@ -294,6 +298,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const { data: row, error: e } = await supabase.from('talents').update({ status }).eq('id', id).select().single();
         if (e || !row) return fail(`Status was not changed: ${e?.message ?? 'not allowed'}`);
         patchList('talents', id, () => toTalent(row));
+        // Approval starts the one-time employment agreement (sent through Documenso by Make).
+        if (status === 'approved') {
+          const outcome = await fireEvent('talent_approved', { talentId: id, name: row.name, email: row.email, role: row.role });
+          if (outcome === 'failed') fail('Approved, but the employment agreement could not be sent. Resend it from Documenso.');
+        }
       },
 
       uploadVideo: async (talent, asset) => {

@@ -1,5 +1,4 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import * as DocumentPicker from 'expo-document-picker';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -21,6 +20,7 @@ export default function TalentHome() {
   const store = useStore();
   const me = store.me;
   const mine = store.engagements.filter((e) => e.talentId === me?.id);
+  const employed = !!me?.employmentSignedAt;
 
   return (
     <Shell
@@ -28,6 +28,17 @@ export default function TalentHome() {
       subtitle="Companies you are matched with and your next steps"
       nav={TALENT_NAV}
     >
+      {me && !employed && (
+        <Panel style={styles.notice}>
+          <Ionicons name="document-text-outline" size={18} color={d.warn} />
+          <Text style={[t.text, t.grow]}>
+            {me.status === 'approved'
+              ? 'Sign your employment agreement to start taking on jobs. Documenso emailed it to you.'
+              : 'Your employment agreement is sent once Solimar approves your profile.'}
+          </Text>
+        </Panel>
+      )}
+
       {me && me.status !== 'approved' && (
         <Panel style={styles.notice}>
           <Ionicons name="hourglass-outline" size={18} color={d.warn} />
@@ -69,16 +80,6 @@ function EngagementCard({ engagement: e }: { engagement: Engagement }) {
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const pending = e.status === 'pending_setup';
-
-  async function uploadAgreement(stepId: string) {
-    const picked = await DocumentPicker.getDocumentAsync({
-      type: ['application/pdf', 'image/*', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-    });
-    if (picked.canceled) return;
-    setBusy(true);
-    await store.uploadAgreement(e, stepId, picked.assets[0]);
-    setBusy(false);
-  }
 
   async function confirm() {
     setBusy(true);
@@ -142,18 +143,6 @@ function EngagementCard({ engagement: e }: { engagement: Engagement }) {
               </Pressable>
               <View style={t.grow}>
                 <Text style={[t.text, step.done && styles.stepDone]}>{step.label}</Text>
-                {step.kind === 'agreement' && step.fileName && <Text style={t.small}>Uploaded: {step.fileName}</Text>}
-                {step.kind === 'agreement' && pending && (
-                  <DButton
-                    label={busy ? 'Working…' : step.fileName ? 'Replace file' : 'Upload agreement'}
-                    disabled={busy}
-                    icon="cloud-upload-outline"
-                    variant="soft"
-                    small
-                    onPress={() => uploadAgreement(step.id)}
-                    style={styles.stepAction}
-                  />
-                )}
               </View>
             </View>
           ))}
@@ -161,13 +150,18 @@ function EngagementCard({ engagement: e }: { engagement: Engagement }) {
       )}
 
       {pending && (
-        <DButton
-          label={busy ? 'Saving…' : `I Have Joined Their ${e.tools[0] ?? 'Systems'} / Systems Configured`}
-          icon="checkmark-done"
-          onPress={confirm}
-          disabled={busy}
-          style={styles.confirm}
-        />
+        <>
+          {!store.me?.employmentSignedAt && (
+            <Text style={styles.note}>Sign your employment agreement first. Check your email for it from Documenso.</Text>
+          )}
+          <DButton
+            label={busy ? 'Saving…' : `I Have Joined Their ${e.tools[0] ?? 'Systems'} / Systems Configured`}
+            icon="checkmark-done"
+            onPress={confirm}
+            disabled={busy || !store.me?.employmentSignedAt}
+            style={styles.confirm}
+          />
+        </>
       )}
       {e.status === 'active' && e.standup !== '' && (
         <Text style={[t.small, styles.body]}>

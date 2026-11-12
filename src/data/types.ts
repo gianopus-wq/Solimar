@@ -27,6 +27,8 @@ export type Talent = {
   videoName: string;
   /** Path in the intro-videos storage bucket. */
   videoPath: string;
+  /** Set by Documenso when the employment agreement is signed. */
+  employmentSignedAt?: string;
   status: TalentStatus;
 };
 
@@ -48,6 +50,8 @@ export type Engagement = {
   createdAt: string;
   requestedAt?: string;
   confirmedAt?: string;
+  msaSignedAt?: string;
+  sowSignedAt?: string;
 };
 
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'closed';

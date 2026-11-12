@@ -12,7 +12,7 @@ import { supabase, videoUrl } from '../lib/supabase';
 import { font } from '../theme';
 
 const NEXT_STEPS = [
-  { icon: 'document-text-outline' as const, text: 'A standard contractor agreement is prepared for you.' },
+  { icon: 'document-text-outline' as const, text: 'We email you the Master Services Agreement and Statement of Work to sign.' },
   { icon: 'key-outline' as const, text: 'Your HR or IT team gets the professional’s contact details.' },
   { icon: 'checkbox-outline' as const, text: 'The onboarding checklist starts in the tools you already use.' },
 ];

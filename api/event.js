@@ -3,10 +3,11 @@
 // Events:
 //   onboarding_requested   - a client clicked "Add to Team / Request Onboarding"
 //   talent_confirmed_setup - a professional confirmed they joined the client's systems
+//   talent_approved        - an admin approved a professional (Documenso employment agreement is sent)
 // Without MAKE_WEBHOOK_URL the event is only written to the function logs and
 // the response says `forwarded: false`.
 
-const EVENTS = new Set(['onboarding_requested', 'talent_confirmed_setup']);
+const EVENTS = new Set(['onboarding_requested', 'talent_confirmed_setup', 'talent_approved']);
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {

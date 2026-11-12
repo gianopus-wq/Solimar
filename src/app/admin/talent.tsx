@@ -108,7 +108,7 @@ function TalentCard({ talent: p }: { talent: Talent }) {
       </View>
 
       <Text style={[t.small, styles.gap]}>
-        {p.experience.length} {p.experience.length === 1 ? 'job' : 'jobs'} · {p.education.length}{' '}
+        Employment agreement {p.employmentSignedAt ? 'signed' : 'pending'} · {p.experience.length} {p.experience.length === 1 ? 'job' : 'jobs'} · {p.education.length}{' '}
         {p.education.length === 1 ? 'degree' : 'degrees'} · {p.videoName ? 'Video uploaded' : 'No video yet'}
       </Text>
 
@@ -157,6 +157,9 @@ function TalentCard({ talent: p }: { talent: Talent }) {
                 <View style={t.grow}>
                   <Text style={t.strong}>{e.company}</Text>
                   <Text style={t.small}>{e.tools.join(', ') || 'No tools listed'}</Text>
+                  <Text style={t.small}>
+                    MSA {e.msaSignedAt ? 'signed' : 'pending'} · SOW {e.sowSignedAt ? 'signed' : 'pending'}
+                  </Text>
                 </View>
                 <Badge label={eb.label} tone={eb.tone} />
                 <DButton

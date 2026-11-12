@@ -1,6 +1,6 @@
 const ENDPOINT = process.env.EXPO_PUBLIC_EVENT_ENDPOINT ?? '/api/event';
 
-export type AppEvent = 'onboarding_requested' | 'talent_confirmed_setup';
+export type AppEvent = 'onboarding_requested' | 'talent_confirmed_setup' | 'talent_approved';
 
 /** 'sent' = reached the automation, 'logged' = received but no webhook configured, 'failed' = not delivered. */
 export type EventResult = 'sent' | 'logged' | 'failed';

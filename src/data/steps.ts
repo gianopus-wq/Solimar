@@ -12,12 +12,6 @@ export function buildSteps(tools: string[], standup: string): Step[] {
         : 'Sign in to the client’s tools with your company email.',
       done: false,
     },
-    {
-      id: 'agreement',
-      kind: 'agreement',
-      label: 'Upload your signed contractor agreement for tax compliance.',
-      done: false,
-    },
   ];
   if (standup) {
     steps.push({ id: 'standup', kind: 'standup', label: `Join the client’s daily standup at ${standup}.`, done: false });
