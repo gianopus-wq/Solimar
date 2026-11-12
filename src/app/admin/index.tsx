@@ -18,7 +18,7 @@ export default function AdminOverview() {
 
   return (
     <Shell
-      title="Solimar Admin"
+      title="Naboria Admin"
       subtitle="Talent, clients, leads, and billing in one place"
       nav={ADMIN_NAV}
     >

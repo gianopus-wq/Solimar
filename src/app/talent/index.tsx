@@ -34,7 +34,7 @@ export default function TalentHome() {
           <Text style={[t.text, t.grow]}>
             {me.status === 'approved'
               ? 'Sign your employment agreement to start taking on jobs. Documenso emailed it to you.'
-              : 'Your employment agreement is sent once Solimar approves your profile.'}
+              : 'Your employment agreement is sent once Naboria approves your profile.'}
           </Text>
         </Panel>
       )}
@@ -44,7 +44,7 @@ export default function TalentHome() {
           <Ionicons name="hourglass-outline" size={18} color={d.warn} />
           <Text style={[t.text, t.grow]}>
             {me.status === 'pending'
-              ? 'Your profile is under review. Clients will see it once Solimar approves it.'
+              ? 'Your profile is under review. Clients will see it once Naboria approves it.'
               : 'Finish your profile and submit it for approval to be matched with clients.'}
           </Text>
         </Panel>

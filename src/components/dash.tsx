@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 
 import { useStore } from '../data/store';
+import { SunMark } from './SunMark';
 import { font, webOnly } from '../theme';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -73,14 +74,14 @@ export function Shell({
   return (
     <View style={[s.root, pageBackground]}>
       <Head>
-        <title>{`${title} | Solimar`}</title>
+        <title>{`${title} | Naboria`}</title>
         <meta name="robots" content="noindex" />
         <style>{SHELL_CSS}</style>
       </Head>
       <View nativeID="dash-frame" style={s.frame}>
         <View nativeID="dash-rail" style={s.rail}>
           <View nativeID="dash-brand" style={s.brand}>
-            <Ionicons name="sunny" size={20} color="#FFFFFF" />
+            <SunMark size={30} color="#FFFFFF" detail={d.blue} />
           </View>
           {nav.map((item) => {
             const active = pathname === item.href;

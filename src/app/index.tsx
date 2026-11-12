@@ -3,10 +3,11 @@ import { ComponentRef, useRef } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { LeadForm, LeadFormHandle } from '../components/LeadForm';
+import { SunMark } from '../components/SunMark';
 import { Bullet, Button, Card, Container, Eyebrow, H2, Lead, Mark, Section } from '../components/ui';
 import { color, fluid, font, radius, webOnly } from '../theme';
 
-const TITLE = 'Solimar | High-touch talent from Puerto Rico at a fraction of mainland cost';
+const TITLE = 'Naboria | High-touch talent from Puerto Rico at a fraction of mainland cost';
 const DESCRIPTION =
   'Hire high-demand, high-touch roles at a fraction of mainland cost. Puerto Rico talent who work your hours and understand how U.S. business runs.';
 
@@ -83,7 +84,7 @@ const COMPARE_ROWS = ['Lower cost', 'Works your hours', 'Native English', 'U.S. 
 const COMPARE = [
   { name: 'Mainland hire', values: [false, true, true, true] },
   { name: 'Offshore agency', values: [true, false, false, false] },
-  { name: 'Puerto Rico with Solimar', values: [true, true, true, true], highlight: true },
+  { name: 'Puerto Rico with Naboria', values: [true, true, true, true], highlight: true },
 ];
 
 const STEPS = [
@@ -119,8 +120,8 @@ export default function Landing() {
 
           <Container style={styles.topbar}>
             <View style={styles.brand}>
-              <View style={styles.brandMark} />
-              <Text style={styles.brandName}>Solimar</Text>
+              <SunMark size={30} color={color.accent} detail="#FFFFFF" accent="#FFC56B" />
+              <Text style={styles.brandName}>Naboria</Text>
             </View>
             <Button label="Talk to our team" onPress={goToForm} size="sm" />
           </Container>
@@ -339,7 +340,7 @@ export default function Landing() {
         </View>
 
         <Container style={styles.footer}>
-          <Text style={styles.footerText}>© {new Date().getFullYear()} Solimar. U.S. talent, based in Puerto Rico.</Text>
+          <Text style={styles.footerText}>© {new Date().getFullYear()} Naboria. U.S. talent, based in Puerto Rico.</Text>
         </Container>
       </ScrollView>
     </>
@@ -376,14 +377,6 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
   },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 9 },
-  brandMark: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: color.accent,
-    borderWidth: 5,
-    borderColor: '#FFC56B',
-  },
   brandName: { fontFamily: font.extrabold, fontSize: 19, letterSpacing: -0.4, color: color.ink },
   heroInner: { alignItems: 'center', paddingTop: fluid(36, 6, 72, 36) },
   heroPill: {

@@ -5,10 +5,11 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { d, DButton, Field, pageBackground, Panel, t } from '../components/dash';
+import { SunMark } from '../components/SunMark';
 import { useStore } from '../data/store';
 import { font } from '../theme';
 
-/** Sign in for professionals and the Solimar team. New professionals create their account here. */
+/** Sign in for professionals and the Naboria team. New professionals create their account here. */
 export default function Login() {
   const store = useStore();
   const [mode, setMode] = useState<'in' | 'up'>('in');
@@ -47,15 +48,15 @@ export default function Login() {
   return (
     <ScrollView style={[styles.page, pageBackground]} contentContainerStyle={styles.content}>
       <Head>
-        <title>Sign in | Solimar</title>
+        <title>Sign in | Naboria</title>
         <meta name="robots" content="noindex" />
       </Head>
 
       <View style={styles.brand}>
         <View style={styles.brandMark}>
-          <Ionicons name="sunny" size={18} color="#FFFFFF" />
+          <SunMark size={24} color="#FFFFFF" detail={d.blue} />
         </View>
-        <Text style={styles.brandName}>Solimar</Text>
+        <Text style={styles.brandName}>Naboria</Text>
       </View>
 
       <Panel style={styles.card}>
@@ -64,7 +65,7 @@ export default function Login() {
         </Text>
         <Text style={t.text}>
           {mode === 'in'
-            ? 'For Solimar professionals and the Solimar team.'
+            ? 'For Naboria professionals and the Naboria team.'
             : 'For professionals in Puerto Rico who want to be matched with U.S. companies.'}
         </Text>
 
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
   brandName: { fontFamily: font.extrabold, fontSize: 20, letterSpacing: -0.4, color: d.ink },
   card: { width: '100%', maxWidth: 420, padding: 26, flexShrink: 0 },
   title: { fontFamily: font.extrabold, fontSize: 24, letterSpacing: -0.5, color: d.ink, marginBottom: 4 },
-  fields: { gap: 12, marginTop: 18 },
+  fields: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 18 },
   error: { fontFamily: font.semibold, fontSize: 14, lineHeight: 20, color: d.bad, marginTop: 12 },
   notice: { fontFamily: font.semibold, fontSize: 14, lineHeight: 20, color: d.good, marginTop: 12 },
   submit: { alignSelf: 'stretch', paddingVertical: 14, marginTop: 18 },
