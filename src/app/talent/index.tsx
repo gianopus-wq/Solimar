@@ -19,7 +19,7 @@ const COLUMNS: { status: EngagementStatus; title: string; tone: Tone; empty: str
 /** Side B: the professional's hub. Which companies accepted them and what to do next. */
 export default function TalentHome() {
   const store = useStore();
-  const me = store.talents.find((p) => p.id === store.currentTalentId) ?? store.talents[0];
+  const me = store.me;
   const mine = store.engagements.filter((e) => e.talentId === me?.id);
 
   return (
@@ -27,7 +27,6 @@ export default function TalentHome() {
       title="My clients"
       subtitle="Companies you are matched with and your next steps"
       nav={TALENT_NAV}
-      right={me && <ViewingAs />}
     >
       {me && me.status !== 'approved' && (
         <Panel style={styles.notice}>
@@ -65,24 +64,6 @@ export default function TalentHome() {
   );
 }
 
-/** There is no sign-in yet, so this switcher stands in for "who is logged in". */
-function ViewingAs() {
-  const store = useStore();
-  return (
-    <View style={t.rowWrap}>
-      <Text style={t.small}>Viewing as</Text>
-      {store.talents.map((p) => (
-        <Chip
-          key={p.id}
-          label={p.name || 'New profile'}
-          selected={p.id === store.currentTalentId}
-          onPress={() => store.setCurrentTalent(p.id)}
-        />
-      ))}
-    </View>
-  );
-}
-
 function EngagementCard({ engagement: e }: { engagement: Engagement }) {
   const store = useStore();
   const [note, setNote] = useState('');
@@ -94,19 +75,21 @@ function EngagementCard({ engagement: e }: { engagement: Engagement }) {
       type: ['application/pdf', 'image/*', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
     });
     if (picked.canceled) return;
-    store.setStep(e.id, stepId, true, picked.assets[0].name);
+    setBusy(true);
+    await store.uploadAgreement(e, stepId, picked.assets[0]);
+    setBusy(false);
   }
 
   async function confirm() {
     setBusy(true);
-    const me = store.talents.find((p) => p.id === e.talentId);
-    const outcome = await fireEvent('talent_confirmed_setup', {
-      engagementId: e.id,
-      company: e.company,
-      talent: { name: me?.name, email: me?.email },
-    });
-    store.confirmEngagement(e.id);
-    setNote(outcome === 'failed' ? 'Saved here. The tracking sheet could not be reached.' : '');
+    if (await store.confirmEngagement(e)) {
+      const outcome = await fireEvent('talent_confirmed_setup', {
+        engagementId: e.id,
+        company: e.company,
+        talent: { name: store.me?.name, email: store.me?.email },
+      });
+      setNote(outcome === 'failed' ? 'Saved. The tracking sheet could not be reached.' : '');
+    }
     setBusy(false);
   }
 
@@ -148,7 +131,7 @@ function EngagementCard({ engagement: e }: { engagement: Engagement }) {
                 aria-checked={step.done}
                 aria-label={step.label}
                 disabled={!pending}
-                onPress={() => store.setStep(e.id, step.id, !step.done)}
+                onPress={() => store.setStep(e, step.id, !step.done)}
                 hitSlop={6}
               >
                 <Ionicons
@@ -162,7 +145,8 @@ function EngagementCard({ engagement: e }: { engagement: Engagement }) {
                 {step.kind === 'agreement' && step.fileName && <Text style={t.small}>Uploaded: {step.fileName}</Text>}
                 {step.kind === 'agreement' && pending && (
                   <DButton
-                    label={step.fileName ? 'Replace file' : 'Upload agreement'}
+                    label={busy ? 'Working…' : step.fileName ? 'Replace file' : 'Upload agreement'}
+                    disabled={busy}
                     icon="cloud-upload-outline"
                     variant="soft"
                     small

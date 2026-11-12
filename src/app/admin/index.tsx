@@ -21,7 +21,6 @@ export default function AdminOverview() {
       title="Solimar Admin"
       subtitle="Talent, clients, leads, and billing in one place"
       nav={ADMIN_NAV}
-      right={<DButton label="Reset sample data" icon="refresh" variant="ghost" small onPress={store.reset} />}
     >
       <View style={t.grid}>
         <Stat icon="mail-unread-outline" label="New leads" value={String(newLeads.length)} note={`${store.leads.length} total`} />
@@ -78,6 +77,7 @@ export default function AdminOverview() {
       </View>
 
       <Panel title="Placements" style={styles.row}>
+        {store.engagements.length === 0 && <Empty>No client links yet. Create one from the Talent page.</Empty>}
         {store.engagements.map((e) => {
           const talent = store.talents.find((p) => p.id === e.talentId);
           const badge = ENGAGEMENT_BADGE[e.status];

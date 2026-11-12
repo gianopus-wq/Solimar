@@ -1,7 +1,7 @@
 import { ComponentRef, forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { useStore } from '../data/store';
+import { supabase } from '../lib/supabase';
 import { color, font, radius } from '../theme';
 import { Button } from './ui';
 
@@ -24,7 +24,6 @@ export const LeadForm = forwardRef<LeadFormHandle>(function LeadForm(_props, ref
   const [trap, setTrap] = useState(''); // honeypot, hidden from people
   const [error, setError] = useState('');
   const [status, setStatus] = useState<Status>('idle');
-  const { addLead } = useStore();
 
   const emailRef = useRef<ComponentRef<typeof TextInput>>(null);
   const nameRef = useRef<ComponentRef<typeof TextInput>>(null);
@@ -51,18 +50,18 @@ export const LeadForm = forwardRef<LeadFormHandle>(function LeadForm(_props, ref
     setError('');
     setStatus('sending');
     try {
-      const res = await fetch(ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          notes: notes.trim(),
-          company_site: trap,
-        }),
-      });
-      if (!res.ok) throw new Error(String(res.status));
-      addLead({ name: name.trim(), email: email.trim(), notes: notes.trim() });
+      const lead = { name: name.trim(), email: email.trim(), notes: notes.trim() };
+      // A filled honeypot means a bot: show success, save nothing.
+      if (!trap) {
+        const { error: failed } = await supabase.from('leads').insert(lead);
+        if (failed) throw failed;
+        // Optional notification (Slack, CRM). The lead is already saved, so a failure here is not shown.
+        fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(lead),
+        }).catch(() => {});
+      }
       setStatus('done');
     } catch {
       setStatus('idle');

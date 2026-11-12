@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as DocumentPicker from 'expo-document-picker';
-import { StyleSheet, Text, View } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 
 import { Badge, d, DButton, Empty, Panel, Shell, t } from '../../components/dash';
 import { ADMIN_NAV } from '../../components/nav';
@@ -22,8 +22,7 @@ export default function AdminContracts() {
       ],
     });
     if (picked.canceled) return;
-    const file = picked.assets[0];
-    store.addTemplate({ name: file.name.replace(/\.[^.]+$/, ''), fileName: file.name, size: file.size ?? 0 });
+    await store.addTemplate(picked.assets[0]);
   }
 
   return (
@@ -46,12 +45,22 @@ export default function AdminContracts() {
                 {c.fileName} · {kb(c.size)} · {formatDate(c.uploadedAt)}
               </Text>
             </View>
+            <DButton
+              label="Download"
+              icon="download-outline"
+              variant="ghost"
+              small
+              onPress={async () => {
+                const url = await store.fileUrl('contracts', c.filePath);
+                if (url) Linking.openURL(url);
+              }}
+            />
             {c.isDefault ? (
               <Badge label="Default" tone="good" icon="checkmark-circle" />
             ) : (
               <DButton label="Make default" variant="soft" small onPress={() => store.setDefaultTemplate(c.id)} />
             )}
-            <DButton label="Remove" icon="trash-outline" variant="danger" small onPress={() => store.removeTemplate(c.id)} />
+            <DButton label="Remove" icon="trash-outline" variant="danger" small onPress={() => store.removeTemplate(c)} />
           </View>
         ))}
       </Panel>

@@ -6,8 +6,9 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Avatar, Badge, Chip, d, DButton, pageBackground, Panel, t } from '../components/dash';
 import { Video } from '../components/Video';
-import { useStore } from '../data/store';
+import { Invite as InviteData } from '../data/types';
 import { EventResult, fireEvent, listWords } from '../lib/events';
+import { supabase, videoUrl } from '../lib/supabase';
 import { font } from '../theme';
 
 const NEXT_STEPS = [
@@ -26,9 +27,11 @@ function clock(timeZone: string): string {
  */
 export default function Invite() {
   const { c } = useLocalSearchParams<{ c?: string }>();
-  const store = useStore();
+  // undefined = still loading, null = link not valid
+  const [invite, setInvite] = useState<InviteData | null | undefined>(undefined);
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<EventResult | null>(null);
+  const [failed, setFailed] = useState(false);
   const [times, setTimes] = useState<{ pr: string; ny: string } | null>(null);
 
   // Live clocks are filled in after load so the pre-rendered page stays stable.
@@ -39,12 +42,28 @@ export default function Invite() {
     return () => clearInterval(id);
   }, []);
 
-  const engagement = store.engagements.find((e) => e.token === c);
-  const talent = engagement && store.talents.find((p) => p.id === engagement.talentId);
+  // The token in the link is the only credential. The database returns just this card's data.
+  useEffect(() => {
+    if (!c) {
+      // Before hydration the query string is not known yet; decide once the browser has it.
+      const id = setTimeout(() => setInvite((v) => (v === undefined ? null : v)), 1500);
+      return () => clearTimeout(id);
+    }
+    let cancelled = false;
+    supabase.rpc('get_invite', { p_token: c }).then(({ data }) => {
+      if (!cancelled) setInvite((data as InviteData | null) ?? null);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [c]);
 
-  if (!store.ready) return <View style={[styles.page, pageBackground]} />;
+  if (invite === undefined) return <View style={[styles.page, pageBackground]} />;
 
-  if (!engagement || !talent || talent.status !== 'approved') {
+  const engagement = invite?.engagement;
+  const talent = invite?.talent;
+
+  if (!engagement || !talent) {
     return (
       <View style={[styles.page, styles.center, pageBackground]}>
         <Panel style={styles.notFound}>
@@ -58,22 +77,20 @@ export default function Invite() {
 
   const requested = engagement.status !== 'invited';
   const verified = talent.skills.filter((k) => k.verified);
-  const template = store.templates.find((x) => x.isDefault);
 
   async function addToTeam() {
-    if (!engagement || !talent) return;
+    if (!invite || !c) return;
     setSending(true);
-    const outcome = await fireEvent('onboarding_requested', {
-      engagementId: engagement.id,
-      company: engagement.company,
-      clientContactEmail: engagement.contactEmail,
-      tools: engagement.tools,
-      standup: engagement.standup,
-      contractTemplate: template?.fileName ?? null,
-      talent: { name: talent.name, email: talent.email, role: talent.role },
-    });
-    store.requestOnboarding(engagement.token);
-    setResult(outcome);
+    setFailed(false);
+    // Records the request and returns the details the automation needs.
+    const { data: payload, error } = await supabase.rpc('request_onboarding', { p_token: c });
+    if (error || !payload) {
+      setFailed(true);
+      setSending(false);
+      return;
+    }
+    setInvite({ ...invite, engagement: { ...invite.engagement, status: 'pending_setup' } });
+    setResult(await fireEvent('onboarding_requested', payload as Record<string, unknown>));
     setSending(false);
   }
 
@@ -112,7 +129,7 @@ export default function Invite() {
         <View style={[t.grid, styles.block]}>
           <View style={styles.videoCol}>
             <Video
-              url={store.videoUrls[talent.id]}
+              url={videoUrl(talent.videoPath)}
               emptyText={talent.videoName ? '60-second intro' : '60-second intro coming soon'}
             />
           </View>
@@ -223,6 +240,11 @@ export default function Invite() {
                 disabled={sending}
                 style={styles.cta}
               />
+              {failed && (
+                <Text style={styles.warn} role="alert">
+                  We could not send your request. Please try again.
+                </Text>
+              )}
               <Text style={[t.small, styles.ctaNote]}>No account needed. One click starts onboarding.</Text>
             </>
           )}

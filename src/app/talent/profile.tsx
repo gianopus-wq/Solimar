@@ -6,6 +6,7 @@ import { Avatar, Badge, Chip, d, DButton, Empty, Field, Panel, Shell, t, Tone } 
 import { TALENT_NAV } from '../../components/nav';
 import { Video } from '../../components/Video';
 import { uid, useStore } from '../../data/store';
+import { videoUrl } from '../../lib/supabase';
 import { Education, Experience, ROLES, Talent, TalentStatus } from '../../data/types';
 
 const STATUS: Record<TalentStatus, { label: string; tone: Tone }> = {
@@ -18,12 +19,13 @@ const STATUS: Record<TalentStatus, { label: string; tone: Tone }> = {
 /** The professional's profile: video intro, personal info, and what makes them the right fit. */
 export default function Profile() {
   const store = useStore();
-  const me = store.talents.find((p) => p.id === store.currentTalentId) ?? store.talents[0];
+  const me = store.me;
+  const [uploading, setUploading] = useState(false);
 
   if (!me) {
     return (
       <Shell title="My profile" subtitle="Show clients why you are the right fit" nav={TALENT_NAV}>
-        <DButton label="Create my profile" icon="add" onPress={store.addTalent} />
+        <Empty>Your profile is not available. Please sign out and sign in again.</Empty>
       </Shell>
     );
   }
@@ -32,9 +34,12 @@ export default function Profile() {
   const canSubmit = (me.status === 'draft' || me.status === 'rejected') && me.name.trim() !== '' && me.role !== '';
 
   async function pickVideo() {
+    if (!me) return;
     const picked = await DocumentPicker.getDocumentAsync({ type: 'video/*' });
     if (picked.canceled) return;
-    store.setVideo(me.id, picked.assets[0].name, picked.assets[0].uri);
+    setUploading(true);
+    await store.uploadVideo(me, picked.assets[0]);
+    setUploading(false);
   }
 
   return (
@@ -54,7 +59,6 @@ export default function Profile() {
               onPress={() => store.setTalentStatus(me.id, 'pending')}
             />
           )}
-          <DButton label="New profile" icon="add" variant="ghost" small onPress={store.addTalent} />
         </View>
       }
     >
@@ -62,11 +66,12 @@ export default function Profile() {
         <View style={styles.colNarrow}>
           <Panel title="60-second video intro">
             <Video
-              url={store.videoUrls[me.id]}
-              emptyText={me.videoName ? `${me.videoName} (re-select to preview)` : 'Add a short video. Say who you are and how you help.'}
+              url={videoUrl(me.videoPath)}
+              emptyText="Add a short video (up to 50 MB). Say who you are and how you help."
             />
             <DButton
-              label={me.videoName ? 'Replace video' : 'Upload video'}
+              label={uploading ? 'Uploading…' : me.videoName ? 'Replace video' : 'Upload video'}
+              disabled={uploading}
               icon="cloud-upload-outline"
               variant="soft"
               onPress={pickVideo}

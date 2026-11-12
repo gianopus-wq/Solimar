@@ -1,5 +1,5 @@
-import { Slot } from 'expo-router';
+import { Guard } from '../../components/Guard';
 
-export default function AdminLayout() {
-  return <Slot />;
+export default function Layout() {
+  return <Guard role="admin" />;
 }

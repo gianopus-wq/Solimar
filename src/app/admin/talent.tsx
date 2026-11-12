@@ -1,8 +1,8 @@
 import { Link } from 'expo-router';
 import { useState } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
 
-import { Avatar, Badge, Chip, d, DButton, Field, Panel, Shell, t, Tone } from '../../components/dash';
+import { Avatar, Badge, Chip, d, DButton, Empty, Field, Panel, Shell, t, Tone } from '../../components/dash';
 import { ADMIN_NAV } from '../../components/nav';
 import { useStore } from '../../data/store';
 import { EngagementStatus, Talent, TalentStatus } from '../../data/types';
@@ -31,6 +31,11 @@ export default function AdminTalent() {
 
   return (
     <Shell title="Talent" subtitle="Review profiles, approve them, and send them to clients" nav={ADMIN_NAV}>
+      {sorted.length === 0 && (
+        <Panel>
+          <Empty>No professionals yet. They appear here after they sign up and fill in their profile.</Empty>
+        </Panel>
+      )}
       <View style={t.grid}>
         {sorted.map((p) => (
           <TalentCard key={p.id} talent={p} />
@@ -52,8 +57,8 @@ function TalentCard({ talent: p }: { talent: Talent }) {
   const links = store.engagements.filter((e) => e.talentId === p.id);
   const badge = TALENT_BADGE[p.status];
 
-  function createLink() {
-    store.addEngagement({
+  async function createLink() {
+    await store.addEngagement({
       talentId: p.id,
       company: company.trim(),
       contactEmail: contactEmail.trim(),
@@ -65,6 +70,11 @@ function TalentCard({ talent: p }: { talent: Talent }) {
     setTools('');
     setStandup('');
     setOpen(false);
+  }
+
+  async function openFile(path: string) {
+    const url = await store.fileUrl('agreements', path);
+    if (url) Linking.openURL(url);
   }
 
   async function copy(token: string) {
@@ -159,6 +169,18 @@ function TalentCard({ talent: p }: { talent: Talent }) {
                 <Link href={`/invite?c=${e.token}` as never} style={styles.openLink}>
                   Open
                 </Link>
+                {e.steps
+                  .filter((st) => st.filePath)
+                  .map((st) => (
+                    <DButton
+                      key={st.id}
+                      label="Signed agreement"
+                      icon="document-attach-outline"
+                      variant="ghost"
+                      small
+                      onPress={() => openFile(st.filePath!)}
+                    />
+                  ))}
               </View>
             );
           })}

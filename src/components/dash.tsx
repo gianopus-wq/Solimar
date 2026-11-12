@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Link, usePathname } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import Head from 'expo-router/head';
 import { ComponentProps, ReactNode } from 'react';
 import {
@@ -13,6 +13,7 @@ import {
   ViewStyle,
 } from 'react-native';
 
+import { useStore } from '../data/store';
 import { font, webOnly } from '../theme';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -68,6 +69,7 @@ export function Shell({
   children: ReactNode;
 }) {
   const pathname = usePathname();
+  const { error, clearError, signOut } = useStore();
   return (
     <View style={[s.root, pageBackground]}>
       <Head>
@@ -83,12 +85,16 @@ export function Shell({
           {nav.map((item) => {
             const active = pathname === item.href;
             return (
-              <Link key={item.href} href={item.href as never} asChild>
-                <Pressable style={[s.navItem, active && s.navItemOn]} aria-current={active ? 'page' : undefined}>
-                  <Ionicons name={item.icon} size={20} color={active ? d.blue : d.muted} />
-                  <Text style={[s.navLabel, active && s.navLabelOn]}>{item.label}</Text>
-                </Pressable>
-              </Link>
+              <Pressable
+                key={item.href}
+                role="link"
+                onPress={() => router.push(item.href as never)}
+                style={[s.navItem, active && s.navItemOn]}
+                aria-current={active ? 'page' : undefined}
+              >
+                <Ionicons name={item.icon} size={20} color={active ? d.blue : d.muted} />
+                <Text style={[s.navLabel, active && s.navLabelOn]}>{item.label}</Text>
+              </Pressable>
             );
           })}
         </View>
@@ -101,8 +107,18 @@ export function Shell({
               </Text>
               <Text style={s.subtitle}>{subtitle}</Text>
             </View>
-            {right && <View style={s.headerRight}>{right}</View>}
+            <View style={[s.headerRight, t.rowWrap]}>
+              {right}
+              <DButton label="Sign out" icon="log-out-outline" variant="ghost" small onPress={signOut} />
+            </View>
           </View>
+          {!!error && (
+            <Pressable onPress={clearError} role="alert" style={s.error}>
+              <Ionicons name="alert-circle" size={18} color={d.bad} />
+              <Text style={s.errorText}>{error}</Text>
+              <Ionicons name="close" size={16} color={d.bad} />
+            </Pressable>
+          )}
           {children}
         </ScrollView>
       </View>
@@ -206,6 +222,8 @@ export function Field({
   multiline,
   style,
   keyboardType,
+  secure,
+  onSubmit,
 }: {
   label: string;
   value: string;
@@ -214,6 +232,8 @@ export function Field({
   multiline?: boolean;
   style?: StyleProp<ViewStyle>;
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
+  secure?: boolean;
+  onSubmit?: () => void;
 }) {
   return (
     <View style={[s.field, style]}>
@@ -225,7 +245,9 @@ export function Field({
         placeholderTextColor={d.muted}
         multiline={multiline}
         keyboardType={keyboardType}
-        autoCapitalize={keyboardType === 'email-address' ? 'none' : undefined}
+        autoCapitalize={keyboardType === 'email-address' || secure ? 'none' : undefined}
+        secureTextEntry={secure}
+        onSubmitEditing={onSubmit}
         aria-label={label}
         style={[s.input, multiline && s.inputMulti]}
       />
@@ -479,4 +501,14 @@ const s = StyleSheet.create({
   statNote: { fontFamily: font.medium, fontSize: 12, color: d.muted, marginTop: 2 },
 
   empty: { fontFamily: font.medium, fontSize: 14, color: d.muted, paddingVertical: 8 },
+  error: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: d.badSoft,
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 14,
+  },
+  errorText: { flex: 1, fontFamily: font.semibold, fontSize: 14, lineHeight: 20, color: d.bad },
 });

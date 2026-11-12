@@ -22,22 +22,35 @@ Import the repo in Vercel. `vercel.json` already sets the build command (`npx ex
 | Route | Who | What |
 | --- | --- | --- |
 | `/` | Prospects | Landing page with the "Schedule a call" form |
+| `/login` | Professionals and the Solimar team | Sign in, or create a professional account |
 | `/invite?c=<token>` | Client (no sign-in) | Talent card and the "Add to Team / Request Onboarding" button |
 | `/talent` | Professional | Clients by status, setup steps, and the "I Have Joined" confirmation |
 | `/talent/profile` | Professional | Video intro, personal info, skills, education, experience |
 | `/admin` | Solimar team | Overview, plus `/admin/talent`, `/admin/leads`, `/admin/invoices`, `/admin/contracts` |
 
-Sample client links: `/invite?c=demo-northwind` (not yet accepted) and `/invite?c=demo-acme`.
+## Backend (Supabase)
 
-## Data and sign-in (prototype)
+Data, sign-in, and file storage run on Supabase. The schema is in `supabase/migrations/`, and the public project URL and publishable key are in `.env` (both are safe to ship to the browser).
 
-All dashboard data lives in the browser's `localStorage` through `src/data/store.tsx`, seeded from `src/data/seed.ts`. That means:
+- **Who sees what** is enforced in the database with row level security. A professional can read and edit only their own profile and engagements; they cannot approve themselves or mark their own skills verified. Admins can read and change everything.
+- **Client links** need no sign-in. The token in the link is the credential; the `get_invite` and `request_onboarding` database functions return only that one card.
+- **Leads** from the landing form are inserted straight into the `leads` table. Anonymous visitors can add a lead but not read any.
+- **Files**: intro videos are in the public `intro-videos` bucket (50 MB limit), signed agreements in the private `agreements` bucket, contract templates in the private `contracts` bucket.
 
-- There is no sign-in. `/talent` and `/admin` are open to anyone with the URL.
-- Data is not shared between browsers or devices. A client link created in the admin panel only works in the browser that created it.
-- Uploaded videos and files are not stored; only their file names are kept.
+### Making someone an admin
 
-`src/data/store.tsx` is the single place to replace with a real database, file storage, and authentication.
+Add their email to `admin_emails` before they create their account at `/login`:
+
+```sql
+insert into public.admin_emails values ('person@yourcompany.com');
+```
+
+If they already have an account, also run `update public.profiles set role = 'admin' where id = (select id from auth.users where email = 'person@yourcompany.com');`. Admin rights only apply once the email is confirmed.
+
+### Supabase settings to check
+
+- **Authentication → URL Configuration → Site URL**: set to your Vercel domain so the link in the confirmation email returns people to your site.
+- **Authentication → Emails → SMTP**: Supabase's built-in sender only allows a few emails per hour. Connect your own SMTP before inviting professionals in bulk.
 
 ## Automation (Make.com)
 
@@ -50,16 +63,17 @@ Generating the agreement, notifying the client's HR/IT team, starting the checkl
 
 ## Lead form
 
-The "Schedule a call" form posts to `/api/lead` (`api/lead.js`, a Vercel serverless function).
+The "Schedule a call" form saves to Supabase, then pings `/api/lead` (`api/lead.js`, a Vercel serverless function) as an optional notification.
 
-- Set `LEAD_WEBHOOK_URL` in the Vercel project to forward each lead as JSON to Slack, Zapier, Make, or a CRM.
-- Without it, leads are only written to the Vercel function logs.
-- `/api/lead` does not exist under `npm run web`; set `EXPO_PUBLIC_LEAD_ENDPOINT` to point the form elsewhere during local development.
+- Each lead is saved to the `leads` table and shows up in `/admin/leads`.
+- Optionally set `LEAD_WEBHOOK_URL` in the Vercel project to also be notified in Slack, Zapier, Make, or a CRM.
 
 ## Structure
 
 - `src/app/`: routes (landing, `invite`, `talent/`, `admin/`)
-- `src/data/`: types, sample data, and the store
+- `src/data/`: types and the Supabase-backed store
+- `src/lib/supabase.ts`: Supabase client
+- `supabase/migrations/`: database schema, security policies, storage buckets
 - `src/components/dash.tsx`: dashboard shell and UI primitives
 - `src/components/LeadForm.tsx`: two-step call request form
 - `src/components/ui.tsx`: shared UI primitives
