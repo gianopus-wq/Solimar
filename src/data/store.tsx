@@ -301,7 +301,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         // Approval starts the one-time employment agreement (sent through Documenso by Make).
         if (status === 'approved') {
           const outcome = await fireEvent('talent_approved', { talentId: id, name: row.name, email: row.email, role: row.role });
-          if (outcome === 'failed') fail('Approved, but the employment agreement could not be sent. Resend it from Documenso.');
+          if (outcome === 'failed') fail('Approved, but the Make notification failed.');
+          const { data: session } = await supabase.auth.getSession();
+          const sent = await fetch('/api/documents', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.session?.access_token ?? ''}` },
+            body: JSON.stringify({ kind: 'employment', talentId: id }),
+          });
+          if (!sent.ok) fail('Approved, but the employment agreement could not be sent. Check the DocuSeal settings.');
         }
       },
 

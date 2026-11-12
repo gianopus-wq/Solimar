@@ -90,6 +90,13 @@ export default function Invite() {
       return;
     }
     setInvite({ ...invite, engagement: { ...invite.engagement, status: 'pending_setup' } });
+    // Sends the MSA and SOW for signature. A failure here is shown, but the request is still recorded.
+    const sent = await fetch('/api/documents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind: 'client', token: c }),
+    });
+    if (!sent.ok) setFailed(true);
     setResult(await fireEvent('onboarding_requested', payload as Record<string, unknown>));
     setSending(false);
   }

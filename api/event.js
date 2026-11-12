@@ -3,7 +3,7 @@
 // Events:
 //   onboarding_requested   - a client clicked "Add to Team / Request Onboarding"
 //   talent_confirmed_setup - a professional confirmed they joined the client's systems
-//   talent_approved        - an admin approved a professional (Documenso employment agreement is sent)
+//   talent_approved        - an admin approved a professional
 // Without MAKE_WEBHOOK_URL the event is only written to the function logs and
 // the response says `forwarded: false`.
 
