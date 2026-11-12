@@ -1,6 +1,7 @@
 import { ComponentRef, forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { useStore } from '../data/store';
 import { color, font, radius } from '../theme';
 import { Button } from './ui';
 
@@ -23,6 +24,7 @@ export const LeadForm = forwardRef<LeadFormHandle>(function LeadForm(_props, ref
   const [trap, setTrap] = useState(''); // honeypot, hidden from people
   const [error, setError] = useState('');
   const [status, setStatus] = useState<Status>('idle');
+  const { addLead } = useStore();
 
   const emailRef = useRef<ComponentRef<typeof TextInput>>(null);
   const nameRef = useRef<ComponentRef<typeof TextInput>>(null);
@@ -60,6 +62,7 @@ export const LeadForm = forwardRef<LeadFormHandle>(function LeadForm(_props, ref
         }),
       });
       if (!res.ok) throw new Error(String(res.status));
+      addLead({ name: name.trim(), email: email.trim(), notes: notes.trim() });
       setStatus('done');
     } catch {
       setStatus('idle');

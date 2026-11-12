@@ -8,6 +8,7 @@ import {
 import { Stack } from 'expo-router';
 import { Platform } from 'react-native';
 
+import { StoreProvider } from '../data/store';
 import { color } from '../theme';
 
 export default function RootLayout() {
@@ -22,6 +23,8 @@ export default function RootLayout() {
   if (!loaded && Platform.OS !== 'web') return null;
 
   return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg } }} />
+    <StoreProvider>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg } }} />
+    </StoreProvider>
   );
 }

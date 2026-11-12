@@ -27,9 +27,6 @@
       "expo-router",
       "expo-font"
     ],
-    "scheme": "solimar",
-    "experiments": {
-      "typedRoutes": true
-    }
+    "scheme": "solimar"
   }
 }

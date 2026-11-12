@@ -121,12 +121,12 @@ export default function Landing() {
             </View>
 
             <Text role="heading" aria-level={1} style={styles.h1}>
-              Hire your first <Mark>bilingual operations pro</Mark> in weeks, without the offshore friction
+              Hire At a <Mark>Fraction</Mark> of Mainland Cost
             </Text>
 
             <Text style={styles.heroSub}>
               We connect mainland U.S. companies with English-speaking professionals in Puerto Rico. Native
-              English and Spanish. Your work hours. U.S. law. A fraction of mainland cost.
+              English and Spanish. Your work hours. U.S. law. No offshore friction.
             </Text>
 
             <Button label="Talk to our team" onPress={goToForm} size="lg" style={styles.heroCta} />
