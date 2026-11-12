@@ -6,9 +6,9 @@ import { LeadForm, LeadFormHandle } from '../components/LeadForm';
 import { Bullet, Button, Card, Container, Eyebrow, H2, Lead, Mark, Section } from '../components/ui';
 import { color, fluid, font, radius, webOnly } from '../theme';
 
-const TITLE = 'Solimar | Bilingual U.S. operations talent from Puerto Rico';
+const TITLE = 'Solimar | High-touch talent from Puerto Rico at a fraction of mainland cost';
 const DESCRIPTION =
-  'Hire bilingual executive assistants, operations coordinators, and onboarding specialists in Puerto Rico. U.S. talent, your work hours, a fraction of mainland cost.';
+  'Hire high-demand, high-touch roles at a fraction of mainland cost. Puerto Rico talent who work your hours and understand how U.S. business runs.';
 
 const FACTS = [
   { value: '0–1 hr', label: 'from Eastern Time, all year' },
@@ -27,9 +27,9 @@ const OVERLAP = [
 const REASONS = [
   {
     n: '01',
-    title: 'Native English and Spanish',
-    offshore: 'Language gaps and heavy accents slow calls and cost you client trust.',
-    pr: 'Your hire speaks both languages like a native. They can lead a Zoom with a U.S. client, then switch to Spanish for Latin America.',
+    title: 'Bilingual by birth',
+    offshore: 'Translation lag and language gaps slow client calls and stall decisions.',
+    pr: 'Native English and Spanish, with no translation step. They can run a call with a U.S. client, then switch to Spanish for Latin America.',
   },
   {
     n: '02',
@@ -66,6 +66,16 @@ const ROLES = [
     title: 'Client Onboarding & Implementation Specialist',
     blurb: 'Turns new customers into happy, active ones.',
     points: ['Kickoff calls and setup', 'Training in English or Spanish', 'One point of contact for each client'],
+  },
+  {
+    title: 'Project Manager',
+    blurb: 'Owns delivery from kickoff to launch, on your U.S. calendar.',
+    points: ['Plans, scopes, and tracks projects', 'Runs standups and stakeholder updates', 'Manages risks, owners, and deadlines'],
+  },
+  {
+    title: 'Customer Success Manager',
+    blurb: 'Keeps your best clients renewing and growing.',
+    points: ['Onboarding and health check-ins', 'Renewal and expansion plans', 'Escalations handled with care, in English or Spanish'],
   },
 ];
 
@@ -121,12 +131,12 @@ export default function Landing() {
             </View>
 
             <Text role="heading" aria-level={1} style={styles.h1}>
-              Hire At a <Mark>Fraction</Mark> of Mainland Cost
+              Hire high-demand, high-touch roles at a <Mark>fraction</Mark> of mainland cost
             </Text>
 
             <Text style={styles.heroSub}>
-              We connect mainland U.S. companies with English-speaking professionals in Puerto Rico. Native
-              English and Spanish. Your work hours. U.S. law. No offshore friction.
+              We connect mainland U.S. companies with professionals in Puerto Rico who work your hours, know how
+              U.S. business runs, and sit under U.S. law. No offshore friction.
             </Text>
 
             <Button label="Talk to our team" onPress={goToForm} size="lg" style={styles.heroCta} />
@@ -147,18 +157,22 @@ export default function Landing() {
 
         {/* ───────── Why Puerto Rico ───────── */}
         <Section>
-          <Eyebrow>Why Puerto Rico</Eyebrow>
+          <Eyebrow>Why Puerto Rico?</Eyebrow>
           <H2>
-            Puerto Rico has a rare <Mark>superpower</Mark>: U.S. professionals who work in two languages, on your
-            clock.
+            Puerto Rico has a rare <Mark>superpower</Mark> that offshore pools can’t match.
           </H2>
+          <Lead>
+            Native, accent-neutral bilingualism, shared U.S. cultural context, identical time zones, and Western legal
+            alignment. Together they cover high-demand roles that offshore hubs in Asia or Eastern Europe struggle with,
+            and that AI cannot replicate.
+          </Lead>
 
           <View style={styles.row}>
             <Card style={styles.whyCard}>
-              <Text style={styles.cardTitle}>What you get</Text>
-              <Bullet>Native English and Spanish, with a clear, neutral accent</Bullet>
-              <Bullet>The same U.S. business culture as your team</Bullet>
-              <Bullet>A work day that lines up with the East Coast</Bullet>
+              <Text style={styles.cardTitle}>Our talent works the exact same hours as your core U.S. team.</Text>
+              <Bullet>They understand American idioms, business etiquette, cultural nuances, and corporate pacing</Bullet>
+              <Bullet>Native English and Spanish for U.S. and Latin American clients</Bullet>
+              <Bullet>Same time zone, so decisions don’t wait a day</Bullet>
               <Bullet>U.S. legal and IP protection</Bullet>
             </Card>
 
@@ -211,7 +225,7 @@ export default function Landing() {
         <Section>
           <Eyebrow>Roles we fill</Eyebrow>
           <H2>Start with the roles that keep your company running.</H2>
-          <Lead>Operations, project coordination, and executive support. One great hire gives your whole team time back.</Lead>
+          <Lead>Operations, project management, client success, and executive support. One great hire gives your whole team time back.</Lead>
 
           <View style={styles.row}>
             {ROLES.map((role, i) => (

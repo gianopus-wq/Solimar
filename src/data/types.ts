@@ -2,6 +2,8 @@ export const ROLES = [
   'Executive Assistant / Chief of Staff',
   'Digital Operations & Project Coordinator',
   'Client Onboarding & Implementation Specialist',
+  'Project Manager',
+  'Customer Success Manager',
 ] as const;
 
 export type TalentStatus = 'draft' | 'pending' | 'approved' | 'rejected';
