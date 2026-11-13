@@ -22,10 +22,14 @@ export default function AdminContracts() {
   const rows = store.engagements.map((e) => {
     const talent = store.talents.find((p) => p.id === e.talentId);
     const invoiced = invoices.filter((i) => i.company === e.company && i.talentId === e.talentId);
-    return { e, talent, value: contractValue(e), invoiced: sum(invoiced.map((i) => i.amount)), paid: sum(invoiced.filter((i) => i.status === 'paid').map((i) => i.amount)) };
+    const value = contractValue(e);
+    const payRate = talent?.payRate ?? 0;
+    const margin = (e.hourlyRate - payRate) * e.hoursPerWeek * e.termWeeks;
+    return { e, talent, value, margin, payRate, invoiced: sum(invoiced.map((i) => i.amount)), paid: sum(invoiced.filter((i) => i.status === 'paid').map((i) => i.amount)) };
   });
 
   const totalValue = sum(rows.map((r) => r.value));
+  const totalMargin = sum(rows.map((r) => r.margin));
   const weeklyHours = sum(store.engagements.map((e) => e.hoursPerWeek));
   const weeklySpend = sum(store.engagements.map((e) => e.hourlyRate * e.hoursPerWeek));
   const outstanding = countOutstanding(store.engagements, store.talents);
@@ -34,6 +38,7 @@ export default function AdminContracts() {
     <Shell title="Contract fulfillment" subtitle="Value, hours, and signatures for every placement" nav={ADMIN_NAV}>
       <View style={t.grid}>
         <Stat icon="cash-outline" label="Total contract value" value={money(totalValue)} note={`${rows.length} placements`} />
+        <Stat icon="trending-up-outline" label="Gross margin" value={money(totalMargin)} note={`${totalValue ? Math.round((totalMargin / totalValue) * 100) : 0}% of contract value`} />
         <Stat icon="time-outline" label="Hours per week" value={String(weeklyHours)} note={`${money(weeklySpend)} per week`} />
         <Stat icon="create-outline" label="Signatures outstanding" value={String(outstanding)} note="client and professional" />
         <Stat icon="receipt-outline" label="Invoiced" value={money(sum(invoices.map((i) => i.amount)))} note={`${money(sum(invoices.filter((i) => i.status === 'paid').map((i) => i.amount)))} paid`} />
@@ -46,7 +51,7 @@ export default function AdminContracts() {
       )}
 
       <View style={styles.list}>
-        {rows.map(({ e, talent, value, invoiced, paid }) => (
+        {rows.map(({ e, talent, value, margin, payRate, invoiced, paid }) => (
           <Panel key={e.id} style={styles.card}>
             <View style={styles.head}>
               <View style={t.grow}>
@@ -61,6 +66,8 @@ export default function AdminContracts() {
             <View style={styles.terms}>
               <Term label="Contract value" value={money(value)} strong />
               <Term label="Bill rate" value={`${money(e.hourlyRate)}/hr`} note="Billed to the client" />
+              <Term label="Pay rate" value={`${money(payRate)}/hr`} note={`${money(e.hourlyRate - payRate)}/hr margin`} />
+              <Term label="Margin" value={money(margin)} note={value ? `${Math.round((margin / value) * 100)}% of contract value` : 'No value yet'} />
               <Term label="Hours" value={`${e.hoursPerWeek}/wk`} note={e.termWeeks ? `${e.hoursPerWeek * e.termWeeks} total over ${e.termWeeks} wks` : 'Term not set'} />
               <Term label="Invoiced" value={money(invoiced)} note={`${money(paid)} paid`} />
             </View>

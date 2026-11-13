@@ -29,6 +29,8 @@ export type Talent = {
   videoName: string;
   /** Path in the intro-videos storage bucket. */
   videoPath: string;
+  /** Hourly pay for this hire (the W-2 wage). Custom per person. */
+  payRate: number;
   /** Set by Documenso when the employment agreement is signed. */
   employmentSignedAt?: string;
   status: TalentStatus;

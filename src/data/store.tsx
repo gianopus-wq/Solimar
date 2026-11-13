@@ -45,6 +45,7 @@ const toTalent = (r: Row): Talent => ({
   experience: r.experience ?? [],
   videoName: r.video_name,
   videoPath: r.video_path,
+  payRate: Number(r.pay_rate ?? 0),
   employmentSignedAt: r.employment_signed_at ?? undefined,
   status: r.status,
 });
@@ -63,6 +64,7 @@ const TALENT_COLUMNS: Partial<Record<keyof Talent, string>> = {
   experience: 'experience',
   videoName: 'video_name',
   videoPath: 'video_path',
+  payRate: 'pay_rate',
   status: 'status',
 };
 

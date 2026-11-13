@@ -108,6 +108,16 @@ function TalentCard({ talent: p }: { talent: Talent }) {
         <Badge label={badge.label} tone={badge.tone} />
       </View>
 
+      <View style={[t.rowWrap, styles.gap]}>
+        <Field
+          label="Pay rate per hour (USD), W-2 wage"
+          value={p.payRate ? String(p.payRate) : ''}
+          onChangeText={(v) => store.updateTalent(p.id, { payRate: Number(v.replace(/[^0-9.]/g, '')) || 0 })}
+          keyboardType="numeric"
+          placeholder="Set per hire"
+        />
+      </View>
+
       {!!p.headline && <Text style={[t.text, styles.gap]}>{p.headline}</Text>}
 
       <View style={[t.rowWrap, styles.gap]}>
