@@ -1,98 +1,147 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import * as DocumentPicker from 'expo-document-picker';
-import { Linking, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { Badge, d, DButton, Empty, Panel, Shell, t } from '../../components/dash';
+import { Badge, d, Empty, Panel, Shell, Stat, t, Tone } from '../../components/dash';
 import { ADMIN_NAV } from '../../components/nav';
 import { useStore } from '../../data/store';
+import { Engagement, Talent } from '../../data/types';
 import { formatDate } from '../../lib/events';
+import { ENGAGEMENT_BADGE, money } from './talent';
 
-const kb = (bytes: number) => `${Math.max(1, Math.round(bytes / 1024))} KB`;
+/** Contract value for a placement: hourly rate × hours per week × weeks. */
+export const contractValue = (e: Engagement) => e.hourlyRate * e.hoursPerWeek * e.termWeeks;
 
-/** Contract templates. The default one is named in every onboarding request. */
+/**
+ * Contract fulfillment: what each placement is worth, how many hours it covers,
+ * and which signatures are still missing. Documents are sent and tracked in DocuSeal.
+ */
 export default function AdminContracts() {
   const store = useStore();
+  const invoices = store.invoices;
 
-  async function upload() {
-    const picked = await DocumentPicker.getDocumentAsync({
-      type: [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      ],
-    });
-    if (picked.canceled) return;
-    await store.addTemplate(picked.assets[0]);
-  }
+  const rows = store.engagements.map((e) => {
+    const talent = store.talents.find((p) => p.id === e.talentId);
+    const invoiced = invoices.filter((i) => i.company === e.company && i.talentId === e.talentId);
+    return { e, talent, value: contractValue(e), invoiced: sum(invoiced.map((i) => i.amount)), paid: sum(invoiced.filter((i) => i.status === 'paid').map((i) => i.amount)) };
+  });
+
+  const totalValue = sum(rows.map((r) => r.value));
+  const weeklyHours = sum(store.engagements.map((e) => e.hoursPerWeek));
+  const weeklySpend = sum(store.engagements.map((e) => e.hourlyRate * e.hoursPerWeek));
+  const outstanding = countOutstanding(store.engagements, store.talents);
 
   return (
-    <Shell
-      title="Contract templates"
-      subtitle="The agreement used when a client adds someone to their team"
-      nav={ADMIN_NAV}
-      right={<DButton label="Upload template" icon="cloud-upload-outline" onPress={upload} />}
-    >
-      <Panel title="Templates">
-        {store.templates.length === 0 && <Empty>Upload a contractor agreement or SOW to get started.</Empty>}
-        {store.templates.map((c) => (
-          <View key={c.id} style={styles.row}>
-            <View style={styles.icon}>
-              <Ionicons name="document-text-outline" size={20} color={d.blue} />
-            </View>
-            <View style={t.grow}>
-              <Text style={t.strong}>{c.name}</Text>
-              <Text style={t.small}>
-                {c.fileName} · {kb(c.size)} · {formatDate(c.uploadedAt)}
-              </Text>
-            </View>
-            <DButton
-              label="Download"
-              icon="download-outline"
-              variant="ghost"
-              small
-              onPress={async () => {
-                const url = await store.fileUrl('contracts', c.filePath);
-                if (url) Linking.openURL(url);
-              }}
-            />
-            {c.isDefault ? (
-              <Badge label="Default" tone="good" icon="checkmark-circle" />
-            ) : (
-              <DButton label="Make default" variant="soft" small onPress={() => store.setDefaultTemplate(c.id)} />
-            )}
-            <DButton label="Remove" icon="trash-outline" variant="danger" small onPress={() => store.removeTemplate(c)} />
-          </View>
-        ))}
-      </Panel>
+    <Shell title="Contract fulfillment" subtitle="Value, hours, and signatures for every placement" nav={ADMIN_NAV}>
+      <View style={t.grid}>
+        <Stat icon="cash-outline" label="Total contract value" value={money(totalValue)} note={`${rows.length} placements`} />
+        <Stat icon="time-outline" label="Hours per week" value={String(weeklyHours)} note={`${money(weeklySpend)} per week`} />
+        <Stat icon="create-outline" label="Signatures outstanding" value={String(outstanding)} note="client and professional" />
+        <Stat icon="receipt-outline" label="Invoiced" value={money(sum(invoices.map((i) => i.amount)))} note={`${money(sum(invoices.filter((i) => i.status === 'paid').map((i) => i.amount)))} paid`} />
+      </View>
 
-      <Panel style={styles.note}>
-        <Ionicons name="information-circle-outline" size={18} color={d.blue} />
-        <Text style={[t.text, t.grow]}>
-          When a client clicks “Add to Team”, the default template’s file name is sent with the onboarding request so
-          your automation knows which agreement to generate.
-        </Text>
-      </Panel>
+      {rows.length === 0 && (
+        <Panel style={styles.gap}>
+          <Empty>No placements yet. Create a client link from the Talent page, with rate, hours and term, to start tracking.</Empty>
+        </Panel>
+      )}
+
+      <View style={styles.list}>
+        {rows.map(({ e, talent, value, invoiced, paid }) => (
+          <Panel key={e.id} style={styles.card}>
+            <View style={styles.head}>
+              <View style={t.grow}>
+                <Text style={t.strong}>{e.company}</Text>
+                <Text style={t.small}>
+                  {talent?.name ?? 'Unknown professional'} · {talent?.role || 'No role'}
+                </Text>
+              </View>
+              <Badge label={ENGAGEMENT_BADGE[e.status].label} tone={ENGAGEMENT_BADGE[e.status].tone} />
+            </View>
+
+            <View style={styles.terms}>
+              <Term label="Contract value" value={money(value)} strong />
+              <Term label="Rate" value={`${money(e.hourlyRate)}/hr`} />
+              <Term label="Hours" value={`${e.hoursPerWeek}/wk`} note={e.termWeeks ? `${e.hoursPerWeek * e.termWeeks} total over ${e.termWeeks} wks` : 'Term not set'} />
+              <Term label="Invoiced" value={money(invoiced)} note={`${money(paid)} paid`} />
+            </View>
+
+            <Text style={styles.sectionLabel}>Signatures</Text>
+            <View style={styles.signers}>
+              <Signer name="Master Services Agreement" who={e.contactEmail || 'Client'} signedAt={e.msaSignedAt} />
+              <Signer name="Statement of Work" who={e.contactEmail || 'Client'} signedAt={e.sowSignedAt} />
+              <Signer name="Employment agreement" who={talent?.name ?? 'Professional'} signedAt={talent?.employmentSignedAt} />
+            </View>
+
+            <Text style={[t.small, styles.foot]}>
+              {progress(e, talent)} signed
+              {e.confirmedAt ? ` · Setup confirmed ${formatDate(e.confirmedAt)}` : ''}
+            </Text>
+          </Panel>
+        ))}
+      </View>
     </Shell>
   );
 }
 
+function Term({ label, value, note, strong }: { label: string; value: string; note?: string; strong?: boolean }) {
+  return (
+    <View style={styles.term}>
+      <Text style={styles.termLabel}>{label}</Text>
+      <Text style={strong ? styles.termValueStrong : styles.termValue}>{value}</Text>
+      {!!note && <Text style={t.small}>{note}</Text>}
+    </View>
+  );
+}
+
+function Signer({ name, who, signedAt }: { name: string; who: string; signedAt?: string }) {
+  const tone: Tone = signedAt ? 'good' : 'warn';
+  return (
+    <View style={styles.signer}>
+      <Ionicons name={signedAt ? 'checkmark-circle' : 'ellipse-outline'} size={20} color={signedAt ? d.good : d.warn} />
+      <View style={t.grow}>
+        <Text style={t.strong}>{name}</Text>
+        <Text style={t.small}>{who}</Text>
+      </View>
+      <Badge label={signedAt ? `Signed ${formatDate(signedAt)}` : 'Awaiting signature'} tone={tone} />
+    </View>
+  );
+}
+
+/** How many of the three signatures for this placement are done (MSA, SOW, employment). */
+function progress(e: Engagement, talent?: Talent): string {
+  const done = [e.msaSignedAt, e.sowSignedAt, talent?.employmentSignedAt].filter(Boolean).length;
+  return `${done} of 3`;
+}
+
+/** Client signatures (MSA, SOW) and professional signatures still missing across all placements. */
+function countOutstanding(engagements: Engagement[], talents: Talent[]): number {
+  let n = 0;
+  for (const e of engagements) {
+    if (!e.msaSignedAt) n += 1;
+    if (!e.sowSignedAt) n += 1;
+  }
+  const placed = new Set(engagements.map((e) => e.talentId));
+  for (const id of placed) {
+    const talent = talents.find((p) => p.id === id);
+    if (talent && !talent.employmentSignedAt) n += 1;
+  }
+  return n;
+}
+
+const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: d.line,
-  },
-  icon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: d.blueSoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  note: { flexDirection: 'row', gap: 10, alignItems: 'flex-start', marginTop: 14 },
+  gap: { marginTop: 14 },
+  list: { gap: 14, marginTop: 14 },
+  card: { flexGrow: 1, flexBasis: 480 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  terms: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, marginTop: 14, paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: d.line },
+  term: { flexGrow: 1, flexBasis: 120, minWidth: 0, gap: 2 },
+  termLabel: { fontFamily: 'Manrope_700Bold', fontSize: 11, letterSpacing: 0.5, textTransform: 'uppercase', color: d.muted },
+  termValue: { fontFamily: 'Manrope_700Bold', fontSize: 16, color: d.ink },
+  termValueStrong: { fontFamily: 'Manrope_800ExtraBold', fontSize: 20, letterSpacing: -0.4, color: d.ink },
+  sectionLabel: { fontFamily: 'Manrope_700Bold', fontSize: 12, letterSpacing: 0.5, textTransform: 'uppercase', color: d.muted, marginTop: 14, marginBottom: 6 },
+  signers: { gap: 6 },
+  signer: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, flexWrap: 'wrap' },
+  foot: { marginTop: 10 },
 });
