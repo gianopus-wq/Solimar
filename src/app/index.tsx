@@ -80,17 +80,17 @@ const ROLES = [
   },
 ];
 
-const COMPARE_ROWS = ['Lower cost', 'Works your hours', 'Native English', 'U.S. legal framework'];
+const COMPARE_ROWS = ['Lower cost', 'Works your hours', 'Native English', 'U.S. legal framework', 'No payroll or HR on your side'];
 const COMPARE = [
-  { name: 'Mainland hire', values: [false, true, true, true] },
-  { name: 'Offshore agency', values: [true, false, false, false] },
-  { name: 'Puerto Rico with Naboria', values: [true, true, true, true], highlight: true },
+  { name: 'Mainland hire', values: [false, true, true, true, false] },
+  { name: 'Offshore agency', values: [true, false, false, false, false] },
+  { name: 'Puerto Rico with Naboria', values: [true, true, true, true, true], highlight: true },
 ];
 
 const STEPS = [
   { n: '1', title: 'Talk to our team', text: 'Tell us the role, your tools, and how your team works.' },
   { n: '2', title: 'Meet your matches', text: 'We introduce vetted, bilingual professionals. You interview and choose.' },
-  { n: '3', title: 'Start working', text: 'Your hire joins your team, on your hours. We run payroll and paperwork.' },
+  { n: '3', title: 'Start working', text: 'Your hire joins your team on your hours. Naboria runs their W-2 payroll and paperwork.' },
 ];
 
 export default function Landing() {
@@ -136,8 +136,8 @@ export default function Landing() {
             </Text>
 
             <Text style={styles.heroSub}>
-              We connect mainland U.S. companies with professionals in Puerto Rico who work your hours, know how
-              U.S. business runs, and sit under U.S. law. No offshore friction.
+              Full-time team members from Puerto Rico who work your hours and know how U.S. business runs. Naboria
+              employs them on W-2, so you skip the payroll, hiring paperwork and compliance.
             </Text>
 
             <Button label="Talk to our team" onPress={goToForm} size="lg" style={styles.heroCta} />
@@ -330,7 +330,7 @@ export default function Landing() {
                 <Bullet>Free call, no commitment</Bullet>
                 <Bullet>Top talent in your time zone</Bullet>
                 <Bullet>A fraction of mainland cost</Bullet>
-                <Bullet>We handle payroll and paperwork</Bullet>
+                <Bullet>Naboria is the W-2 employer: payroll, taxes and HR are on us</Bullet>
               </View>
             </View>
             <View style={styles.finalForm}>

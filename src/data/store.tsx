@@ -304,7 +304,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const { data: row, error: e } = await supabase.from('talents').update({ status }).eq('id', id).select().single();
         if (e || !row) return fail(`Status was not changed: ${e?.message ?? 'not allowed'}`);
         patchList('talents', id, () => toTalent(row));
-        // Approval starts the one-time employment agreement (sent through Documenso by Make).
+        // Approval sends the W-2 employment agreement through DocuSeal (server route).
         if (status === 'approved') {
           const outcome = await fireEvent('talent_approved', { talentId: id, name: row.name, email: row.email, role: row.role });
           if (outcome === 'failed') fail('Approved, but the Make notification failed.');

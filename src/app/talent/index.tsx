@@ -33,7 +33,7 @@ export default function TalentHome() {
           <Ionicons name="document-text-outline" size={18} color={d.warn} />
           <Text style={[t.text, t.grow]}>
             {me.status === 'approved'
-              ? 'Sign your employment agreement to start taking on jobs. Documenso emailed it to you.'
+              ? 'Sign your Naboria W-2 employment agreement to start taking on jobs. DocuSeal emailed it to you.'
               : 'Your employment agreement is sent once Naboria approves your profile.'}
           </Text>
         </Panel>
@@ -152,7 +152,7 @@ function EngagementCard({ engagement: e }: { engagement: Engagement }) {
       {pending && (
         <>
           {!store.me?.employmentSignedAt && (
-            <Text style={styles.note}>Sign your employment agreement first. Check your email for it from Documenso.</Text>
+            <Text style={styles.note}>Sign your W-2 employment agreement first. Check your email for it from DocuSeal.</Text>
           )}
           <DButton
             label={busy ? 'Saving…' : `I Have Joined Their ${e.tools[0] ?? 'Systems'} / Systems Configured`}

@@ -60,7 +60,7 @@ export default function AdminContracts() {
 
             <View style={styles.terms}>
               <Term label="Contract value" value={money(value)} strong />
-              <Term label="Rate" value={`${money(e.hourlyRate)}/hr`} />
+              <Term label="Bill rate" value={`${money(e.hourlyRate)}/hr`} note="Billed to the client" />
               <Term label="Hours" value={`${e.hoursPerWeek}/wk`} note={e.termWeeks ? `${e.hoursPerWeek * e.termWeeks} total over ${e.termWeeks} wks` : 'Term not set'} />
               <Term label="Invoiced" value={money(invoiced)} note={`${money(paid)} paid`} />
             </View>
@@ -69,7 +69,7 @@ export default function AdminContracts() {
             <View style={styles.signers}>
               <Signer name="Master Services Agreement" who={e.contactEmail || 'Client'} signedAt={e.msaSignedAt} />
               <Signer name="Statement of Work" who={e.contactEmail || 'Client'} signedAt={e.sowSignedAt} />
-              <Signer name="Employment agreement" who={talent?.name ?? 'Professional'} signedAt={talent?.employmentSignedAt} />
+              <Signer name="W-2 employment agreement" who={talent?.name ?? 'Professional'} signedAt={talent?.employmentSignedAt} />
             </View>
 
             <Text style={[t.small, styles.foot]}>
@@ -107,7 +107,7 @@ function Signer({ name, who, signedAt }: { name: string; who: string; signedAt?:
   );
 }
 
-/** How many of the three signatures for this placement are done (MSA, SOW, employment). */
+/** How many of the three signatures for this placement are done (MSA, SOW, W-2 employment). */
 function progress(e: Engagement, talent?: Talent): string {
   const done = [e.msaSignedAt, e.sowSignedAt, talent?.employmentSignedAt].filter(Boolean).length;
   return `${done} of 3`;

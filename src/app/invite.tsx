@@ -133,6 +133,9 @@ export default function Invite() {
         </View>
 
         <Text style={styles.headline}>{talent.headline}</Text>
+        <Text style={[t.text, styles.block]}>
+          Full-time, W-2 employed by Naboria. You get a dedicated team member with no payroll or HR setup on your side.
+        </Text>
 
         <View style={[t.grid, styles.block]}>
           <View style={styles.videoCol}>

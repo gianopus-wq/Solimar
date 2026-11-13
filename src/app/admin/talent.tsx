@@ -117,7 +117,7 @@ function TalentCard({ talent: p }: { talent: Talent }) {
       </View>
 
       <Text style={[t.small, styles.gap]}>
-        Employment agreement {p.employmentSignedAt ? 'signed' : 'pending'} · {p.experience.length} {p.experience.length === 1 ? 'job' : 'jobs'} · {p.education.length}{' '}
+        W-2 employment {p.employmentSignedAt ? 'signed' : 'pending'} · {p.experience.length} {p.experience.length === 1 ? 'job' : 'jobs'} · {p.education.length}{' '}
         {p.education.length === 1 ? 'degree' : 'degrees'} · {p.videoName ? 'Video uploaded' : 'No video yet'}
       </Text>
 
@@ -152,7 +152,7 @@ function TalentCard({ talent: p }: { talent: Talent }) {
             <Field label="Client HR / IT email" value={contactEmail} onChangeText={setContactEmail} keyboardType="email-address" />
             <Field label="Tools they use (comma separated)" value={tools} onChangeText={setTools} placeholder="Slack, Notion" />
             <Field label="Daily standup time" value={standup} onChangeText={setStandup} placeholder="9:30 AM EST" />
-            <Field label="Hourly rate (USD)" value={rate} onChangeText={setRate} placeholder="28" keyboardType="numeric" />
+            <Field label="Client bill rate per hour (USD)" value={rate} onChangeText={setRate} placeholder="28" keyboardType="numeric" />
             <Field label="Hours per week" value={hours} onChangeText={setHours} placeholder="40" keyboardType="numeric" />
             <Field label="Term (weeks)" value={weeks} onChangeText={setWeeks} placeholder="26" keyboardType="numeric" />
           </View>
